@@ -17,8 +17,8 @@ import path from "node:path";
 import crypto from "node:crypto";
 import { generateBlurhash, generateThumbnail } from "./helper.utils.js";
 import { generateVideoThumbnail } from "./video.utils.js";
-// import dotenv from "dotenv";
-// dotenv.config();
+import dotenv from "dotenv";
+dotenv.config();
 
 
 const requiredEnvVars = ["AWS_BUCKET_NAME", "AWS_REGION"];

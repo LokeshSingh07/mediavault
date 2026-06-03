@@ -2,6 +2,8 @@ import {
     CloudFrontClient,
     CreateInvalidationCommand
 } from "@aws-sdk/client-cloudfront";
+import dotenv from "dotenv";
+dotenv.config();
 
 
 // check env vars
