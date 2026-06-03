@@ -9,8 +9,7 @@
   "scripts": {
     "dev": "node src/server.js",
     "dev:nodemon": "nodemon src/server.js",
-    "seed": "node src/seed/seed.js",
-    "env_file": ".env"
+    "seed": "node src/seed/seed.js"
   },
   "dependencies": {
     "@aws-sdk/client-cloudfront": "^3.1057.0",

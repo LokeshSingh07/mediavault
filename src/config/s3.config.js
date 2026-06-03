@@ -16,6 +16,11 @@ const s3 = new S3Client({
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
   },
+  // Add timeout
+  requestHandler: {
+    requestTimeout: 30000,    // 30 seconds
+    connectionTimeout: 5000,
+  }
 });
 
 export { s3 };
