@@ -83,6 +83,11 @@ export const login = async(req, res) => {
         })
 
         user.password = undefined;
+        await User.findByIdAndUpdate(user._id, {
+            lastLoginAt: new Date(),
+            lastLoginIP: req.ip,
+            lastLoginUserAgent: req.headers["user-agent"],
+        });
 
         return res.status(200)
             .json({success: true, message: "User logged in successfully", token});

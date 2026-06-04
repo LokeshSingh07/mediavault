@@ -15,6 +15,7 @@ import {
     uploadFileUsingPresignedUrl
 } from "../controllers/upload.controller.js";
 import  upload, { checkFileSize }  from "../middlewares/multer.middleware.js";
+import { authMiddleware } from "../middlewares/auth.middleware.js";
 
 
 
@@ -29,7 +30,7 @@ import  upload, { checkFileSize }  from "../middlewares/multer.middleware.js";
 
 // upload File (multer)
 // uploadRouter.post("/server-side-upload", upload.single("file"), uploadFile)
-uploadRouter.post("/server-side-upload", upload.array("files", 20), checkFileSize, uploadFile)
+uploadRouter.post("/server-side-upload",authMiddleware,  upload.array("files", 20), checkFileSize, uploadFile)
 
 // upload File (generate presigned url)
 uploadRouter.post("/upload-presigned-url", uploadFileUsingPresignedUrl)

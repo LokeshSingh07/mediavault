@@ -24,7 +24,8 @@ const userSchema = new mongoose.Schema({
     deletedAt: { type: Date, default: null },
 
     lastLoginAt: { type: Date, default: null },
-    lastLoginIP: { type: String, default: null, }
+    lastLoginIP: { type: String, default: null },
+    lastLoginUserAgent: { type: String, default: null },
 
 }, { timestamps: true });
 

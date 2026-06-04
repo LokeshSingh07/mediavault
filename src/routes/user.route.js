@@ -4,13 +4,13 @@ const userRouter = Router();
 
 
 
-import { signup } from "../controllers/user.controller.js";
+import { login, signup } from "../controllers/user.controller.js";
 
 
 
 
 userRouter.post("/register", signup);
-// userRouter.post("/login", login);
+userRouter.post("/login", login);
 
 
 
