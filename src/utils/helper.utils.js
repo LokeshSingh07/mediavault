@@ -1,5 +1,6 @@
 import sharp from "sharp";
 import { encode } from "blurhash";
+import { User } from "../models/user.model.js";
 
 export function validateKey(key, res) {
     if (!key) {
@@ -54,4 +55,27 @@ export async function generateBlurhash(buffer) {
         console.error("Error generating BlurHash:", err);
         throw err;
     }
+}
+
+
+
+export async function incrementStorage(userId, sizeInBytes){
+    const size = Number(sizeInBytes)
+    const user = await User.findByIdAndUpdate(
+        userId, 
+        { $inc: { storageUsed: size } },
+        {new: true}
+    )
+    return user;
+}
+
+
+export async function decrementStorage(userId, sizeInBytes){
+    const size = Number(sizeInBytes)
+    const user = await User.findByIdAndUpdate(
+        userId, 
+        { $inc: { storageUsed: -Math.abs(size) } },
+        {new: true}
+    )
+    return user;
 }

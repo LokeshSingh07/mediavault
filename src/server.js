@@ -8,6 +8,7 @@ import uploadRouter from "./routes/upload.route.js";
 import fileRouter from "./routes/file.route.js";
 import cookieParser from "cookie-parser";
 import userRouter from "./routes/user.route.js";
+import { startTrashCleanupCron } from "./utils/cron.utils.js";
 
 
 
@@ -53,6 +54,8 @@ const PORT = process.env.PORT || 4002;
 ;(async () => {
     try{
         await connectDB();
+
+        startTrashCleanupCron();
 
         app.listen(PORT, '0.0.0.0', () => { 
             console.log(`✅ Server running on port ${PORT}`);

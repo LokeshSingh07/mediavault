@@ -15,7 +15,7 @@ const userSchema = new mongoose.Schema({
     // passwordResetTokenExpiry: { type: Date, default: null },
 
     storageUsed:  { type: Number, default: 0 },        // bytes used
-    storageLimit: { type: Number, default: 1 * 1024 * 1024 * 1024 }, // 5GB default
+    storageLimit: { type: Number, default: 1 * 1024 * 1024 * 1024 }, // 1GB default
     
     isBlocked: { type: Boolean, default: false },
     blockedAt: { type: Date, default: null },

@@ -5,12 +5,13 @@ const userRouter = Router();
 
 
 import { login, signup } from "../controllers/user.controller.js";
+import { authLimiter } from "../middlewares/rateLimiter.middleware.js";
 
 
 
 
-userRouter.post("/register", signup);
-userRouter.post("/login", login);
+userRouter.post("/register", authLimiter, signup);
+userRouter.post("/login", authLimiter, login);
 
 
 

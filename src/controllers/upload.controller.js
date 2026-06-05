@@ -1,5 +1,6 @@
 import { abortMultipartUploadS3, buildFileUrl, completeMultipartUploadS3, generateUploadSignedUrl, getFolderByMimeType, getMultipartPresignedUrlS3, multipartUploadS3, uploadToS3 } from "../utils/s3.utils.js";
 import { File } from "../models/file.model.js";
+import { incrementStorage } from "../utils/helper.utils.js";
 
 
 // const userId = "6a12b96ed296c385de6a2059";
@@ -49,6 +50,9 @@ export const uploadFile = async(req, res) => {
             console.log("fileObj => ", fileObj);
             return File.create(fileObj);
         }));
+
+        // after successfull upload to s3 -> update the storage
+        await incrementStorage(userId, req.incomingSize);
 
         return res.status(200).json({
             success: true, 
@@ -106,6 +110,8 @@ export const confirmUploadFileUsingPresignedUrl = async(req, res) => {
         }
 
         await File.create(file);
+
+        await incrementStorage(userId, size);
 
         return res.status(200).json({success: true, message: "Presigned URL generated successfully", file});
     } catch(err){
@@ -185,6 +191,8 @@ export const completeMultipartUpload = async (req, res) => {
         }
         await File.create(fileObj);
 
+        await incrementStorage(userId, size);
+
         
         return res.status(200).json({
             success: true,
@@ -195,6 +203,7 @@ export const completeMultipartUpload = async (req, res) => {
         return res.status(500).json({ success: false, message: "Internal Server Error", error: err.message });
     }
 }
+
 
 
 export const abortMultipartUpload = async (req, res) => {
@@ -210,5 +219,26 @@ export const abortMultipartUpload = async (req, res) => {
         return res.status(200).json({ success: true, message: "Multipart upload aborted" });
     } catch(err){
         return res.status(200).json({ success: true, message: "Multipart upload aborted" });
+    }
+}
+
+
+
+
+export const getStorageInfo = async(req, res) => {
+    try{
+        const userId = req.user?.id;
+        
+        const user = await User.findById(userId).select("storageUsed storageLimit");
+
+        const result = {
+            storageUsed: user.storageUsed,
+            storageLimit: user.storageLimit,
+        }
+
+        return res.status(200).json({success: true, message: "Storage info fetched successfully", result});
+    }
+    catch(err){
+        return res.status(500).json({success: false, message: "Internal Server Error", errror: err.message});
     }
 }

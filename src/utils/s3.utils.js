@@ -33,7 +33,7 @@ const BUCKET = process.env.AWS_BUCKET_NAME;
 const REGION = process.env.AWS_REGION;
 const CLOUDFRONT_DOMAIN = process.env.CLOUDFRONT_DOMAIN;
 
-const SIGNED_URL_EXPIRES = 60 * 10; // 10 minutes
+const SIGNED_URL_EXPIRES = 10 * 60; // 10 minutes
 const MULTIPART_THRESHOLD = 5 * 1024 * 1024; 
 
 
@@ -122,7 +122,7 @@ export async function uploadToS3(file){
             
 
             // 3. If image -> upload thumbnail + get metadata
-            const thumbnailKey = `${key}/thumbnail`;
+            const thumbnailKey = key.replace(/(\.[^.]+)$/, "_thumb.jpg");
             await uploadBufferToS3(data, thumbnailKey, "image/jpeg");
             
             console.log("blurhash", blurhash);
@@ -156,7 +156,7 @@ export async function uploadToS3(file){
             
 
             // 3. If image -> upload thumbnail + get metadata
-            const thumbnailKey = `${key}/thumbnail`;
+            const thumbnailKey = key.replace(/(\.[^.]+)$/, "_thumb.jpg");
             await uploadBufferToS3(data, thumbnailKey, "image/jpeg");
             
             console.log("blurhash", blurhash);
@@ -200,14 +200,14 @@ export function getObjectUrl(key){
 
 
 // ─── Get Presigned Object URL ───────────────
-export async function getObjectSignedUrl(key){
+export async function getObjectSignedUrl(key, expiresIn = SIGNED_URL_EXPIRES){
     const command = new GetObjectCommand({
         Bucket: BUCKET,
         Key: key
     })
     
     const signedUrl = await getSignedUrl(s3, command, {
-        expiresIn: SIGNED_URL_EXPIRES
+        expiresIn: expiresIn
     });
 
     return { key, expiresIn: SIGNED_URL_EXPIRES, signedUrl }
