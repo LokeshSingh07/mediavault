@@ -221,7 +221,7 @@ export const generateShareableLink = async(req, res) => {
             success: true,
             message: "Shareable link generated",
             sharedLink: signedUrl,
-            expiresAt: sharedLinkExpiry,
+            expiresAt: file.sharedLinkExpiry,
         });
     } catch(err){
         return res.status(500).json({success: false, message: "Internal Server Error", errror: err.message});

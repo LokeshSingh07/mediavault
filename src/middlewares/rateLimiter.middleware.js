@@ -31,7 +31,7 @@ export const uploadLimiter = createLimiter(
 // presigned / multipart initiate -> lighter but still limit
 export const presignedLimiter = createLimiter(
     60 * 1000,
-    30,                 // 30 requests/min
+    60,                 // 30 requests/min
     "Too many requests. Try again after 1 minute."
 );
 

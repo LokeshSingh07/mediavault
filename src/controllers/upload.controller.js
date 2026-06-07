@@ -1,6 +1,7 @@
 import { abortMultipartUploadS3, buildFileUrl, completeMultipartUploadS3, generateUploadSignedUrl, getFolderByMimeType, getMultipartPresignedUrlS3, multipartUploadS3, uploadToS3 } from "../utils/s3.utils.js";
 import { File } from "../models/file.model.js";
 import { incrementStorage } from "../utils/helper.utils.js";
+import { User } from "../models/user.model.js";
 
 
 // const userId = "6a12b96ed296c385de6a2059";

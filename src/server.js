@@ -9,6 +9,7 @@ import fileRouter from "./routes/file.route.js";
 import cookieParser from "cookie-parser";
 import userRouter from "./routes/user.route.js";
 import { startTrashCleanupCron } from "./utils/cron.utils.js";
+import aiRouter from "./routes/ai.routes.js";
 
 
 
@@ -17,14 +18,29 @@ const app = express();
 // middleware
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors({
-    origin: "*",
-    credentials: true
-}));
+// app.use(cors({
+//     origin: "*",
+//     credentials: true
+// }));
 app.use(compression());
 // app.use(helmet());
 // app.use(morgan("dev"));
 
+const allowedOrigins = [
+    "http://localhost:8080",
+    "http://localhost:3000"
+];
+
+app.use(cors({
+    origin: function(origin, callback) {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error("Not allowed by CORS"));
+        }
+    },
+    credentials: true
+}));
 
 
 
@@ -33,6 +49,7 @@ app.use(compression());
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/upload", uploadRouter);
 app.use("/api/v1/file", fileRouter);
+app.use("/api/v1/ai", aiRouter);
 
 
 

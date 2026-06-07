@@ -238,6 +238,23 @@ export async function generateUploadSignedUrl(fileName, contentType){
 };
 
 
+// download from s3
+export async function downloadFromS3(key) {
+    const command = new GetObjectCommand({ 
+        Bucket: BUCKET, 
+        Key: key 
+    });
+    
+    const response = await s3.send(command);
+
+    // response.Body is a readable stream → convert to buffer
+    const chunks = [];
+    for await (const chunk of response.Body) {
+        chunks.push(chunk);
+    }
+    
+    return Buffer.concat(chunks);
+}
 
 
 // ─── Delete from S3 ───────────────
