@@ -58,6 +58,41 @@ export async function generateVideoThumbnail(videoBuffer){
 
 
 
+// export async function extractAudioFromVideo(videoBuffer) {
+//   return new Promise((resolve, reject) => {
+//     // pipe buffer in via stdin, read compressed audio out via stdout
+//     const ffmpeg = spawn("ffmpeg", [
+//       "-i", "pipe:0",        // read from stdin
+//       "-vn",                 // drop video stream
+//       "-acodec", "libmp3lame",
+//       "-ac", "1",            // mono
+//       "-ar", "16000",        // 16kHz — whisper sweet spot
+//       "-b:a", "32k",         // 32kbps — tiny, still transcribable
+//       "-f", "mp3",           // output format (no file extension to infer from)
+//       "pipe:1",              // write to stdout
+//     ], { stdio: ["pipe", "pipe", "pipe"] });
+
+//     const chunks = [];
+
+//     ffmpeg.stdout.on("data", (chunk) => chunks.push(chunk));
+//     ffmpeg.stderr.on("data", () => {});  // suppress ffmpeg logs; remove to debug
+
+//     ffmpeg.on("close", (code) => {
+//       if (code !== 0) return reject(new Error(`ffmpeg exited with code ${code}`));
+//       const audioBuffer = Buffer.concat(chunks);
+//       console.log(`Audio size: ${(audioBuffer.length / 1024 / 1024).toFixed(2)} MB`);
+//       resolve(audioBuffer);
+//     });
+
+//     ffmpeg.on("error", reject);
+
+//     // write video buffer to ffmpeg stdin, then close it
+//     ffmpeg.stdin.write(videoBuffer);
+//     ffmpeg.stdin.end();
+//   });
+// }
+
+// /*
 export async function extractAudioFromVideo(videoBuffer){
     try{
         // const tempDir = os.tmpdir();
@@ -101,6 +136,7 @@ export async function extractAudioFromVideo(videoBuffer){
         throw err;
     }
 }
+// */
 
 
 // export async function generateVideoThumbnail(videoBuffer) {

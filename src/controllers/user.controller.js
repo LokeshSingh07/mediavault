@@ -1,5 +1,7 @@
 import { User } from "../models/user.model.js";
 import jwt from "jsonwebtoken";
+import mailService from "../services/mail.service.js";
+import { welcomeTemplate } from "../emails/templates/user/welcome.template.js";
 
 
 export const signup = async(req, res) => {
@@ -96,5 +98,32 @@ export const login = async(req, res) => {
     catch(err){
         console.log("error", err);
         return res.status(500).json({success: false, message: "Internal Server Error", errror: err.message});
+    }
+}
+
+
+export const testWelcomeEmail = async(req, res) => {
+    try{
+        const { name, email } = req.body;
+
+        if(!name || !email){
+            return res.status(400).json({success: false, message: "Name and email are required"});
+        }
+
+        // Send welcome email
+        await mailService.sendWelcomeEmail({name, email});
+
+        // Return the HTML template for preview
+        const htmlTemplate = welcomeTemplate({name});
+
+        return res.status(200).json({
+            success: true,
+            message: "Test email sent successfully",
+            html: htmlTemplate
+        });
+    }
+    catch(err){
+        console.log("error", err);
+        return res.status(500).json({success: false, message: "Failed to send test email", error: err.message});
     }
 }

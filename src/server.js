@@ -28,7 +28,8 @@ app.use(compression());
 
 const allowedOrigins = [
     "http://localhost:8080",
-    "http://localhost:3000"
+    "http://localhost:3000",
+    "http://localhost:5173",
 ];
 
 app.use(cors({
@@ -66,7 +67,7 @@ app.get("/", (req, res) =>
 // ─────────────────────────────────────────────
 // Start Server
 // ─────────────────────────────────────────────
-const PORT = process.env.PORT || 4002;
+const PORT = process.env.PORT || 4011;
 
 ;(async () => {
     try{
