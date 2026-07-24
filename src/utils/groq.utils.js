@@ -3,6 +3,15 @@ import { Readable } from "node:stream";
 import { extractAudioFromVideo } from "./video.utils.js";
 
 
+function cleanStringArray(arr) {
+  if (!Array.isArray(arr)) return [];
+
+  return arr
+    .filter(item => typeof item === "string")
+    .map(item => item.trim())
+    .filter(Boolean);
+}
+
 
 // take a audio file and transcribe it -> before passing video : extract audio from video
 export async function transcribeWithGroq(buffer, originalName){
@@ -24,20 +33,20 @@ export async function transcribeWithGroq(buffer, originalName){
 
 async function summarizeChunk(transcript){
     const prompt = `
-You are analyzing a transcript. Based on the transcript below, provide:
-1. A concise summary (2-3 sentences)
-2. Key points (max 5 bullet points)
-3. Potential interview questions (max 5 questions)
+      You are analyzing a transcript. Based on the transcript below, provide:
+      1. A concise summary (2-3 sentences)
+      2. Key points (max 5 bullet points)
+      3. Potential interview questions (max 5 questions)
 
-Respond ONLY in this JSON format, no extra text:
-{
-    "summary": "...",
-    "keyPoints": ["...", "..."],
-    "questions": ["...", "..."]
-}
+      Respond ONLY in this JSON format, no extra text:
+      {
+          "summary": "...",
+          "keyPoints": ["...", "..."],
+          "questions": ["...", "..."]
+      }
 
-Transcript:
-${transcript}
+      Transcript:
+      ${transcript}
     `;
 
     const response = await groq.chat.completions.create({
@@ -47,15 +56,33 @@ ${transcript}
       response_format: { type: "json_object" }
     });
 
-    const result = JSON.parse(response.choices[0].message.content);
-    return result;
+    let result = {};
+
+    try {
+      result = JSON.parse(
+        response.choices[0].message.content
+      );
+    } catch (err) {
+      console.error("Invalid JSON:", err);
+    }
+
+    return {
+      summary:
+        typeof result.summary === "string"
+          ? result.summary
+          : "",
+
+      keyPoints: cleanStringArray(result.keyPoints),
+
+      questions: cleanStringArray(result.questions)
+    };
 }
 
 
 // Summarize with Llama
 export const processWithGroqLlama = async (transcript) => {
   try{
-    const CHUNK_SIZE = 3000;  // chars per chunk
+    const CHUNK_SIZE = 10000;  // chars per chunk
 
     // if short enough → process directly
     if (transcript.length <= CHUNK_SIZE) {

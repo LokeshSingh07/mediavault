@@ -48,7 +48,7 @@ EC2 sends transcript to Llama
 
 ### Option B — Lambda + Groq
 
-```text
+```text`
 S3 → Lambda downloads video (FREE)
 Lambda extracts audio (ffmpeg layer)
 Lambda sends audio to Groq
@@ -133,3 +133,13 @@ MongoDB Update
 3. Minimal bandwidth costs.
 4. AWS-managed services reduce operational burden.
 5. Easier monitoring and failure handling.
+
+
+
+
+
+
+
+
+What SQS does vs. what AWS Batch does?
+  Your current setup has SQS as the queue and you as the compute provider — you're manually running node transcription-worker.js on your laptop (or eventually on a server) that polls forever. SQS just holds messages; it has no idea how or where they get processed.
