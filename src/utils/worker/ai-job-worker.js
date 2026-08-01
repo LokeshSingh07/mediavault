@@ -2,47 +2,23 @@
 // ReceiveMessageCommand — worker asks "give me some messages"
 // DeleteMessageCommand — worker says "I'm done with this one, remove it"
 
-import { SQSClient, SendMessageCommand, ReceiveMessageCommand, DeleteMessageCommand, Message$ } from "@aws-sdk/client-sqs";
+import { ReceiveMessageCommand, DeleteMessageCommand } from "@aws-sdk/client-sqs";
 import dotenv from "dotenv";
 import { AIResult } from "../../models/aiResult.model.js";
 import { File } from "../../models/file.model.js";
+import { deleteFromQueue, sqs } from "../../config/sqs.config.js";
+import { processVideoWithGroq } from "../groq.utils.js";
+import { downloadFromS3 } from "../s3.utils.js";
 dotenv.config({path: "../../../.env"});
 
 
 
-const REGION = process.env.AWS_REGION;
 const SQS_QUEUE_URL= process.env.SQS_QUEUE_URL;
 const POLL_MODE = process.env.POLL_MODE === "short" ? "short" : "long";
-
-const MOCK_SEND = process.env.MOCK_SEND === "true";
 const WAIT_TIME_SECONDS = POLL_MODE === "long" ? 20 : 10;
 
 
 
-const sqs = new SQSClient({ 
-    region: REGION,
-    credentials: {
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-    },
- });
-
-
-
-
-export async function addJobToQueue(payload){
-    if(MOCK_SEND){
-        console.log("MOCK_SEND: ", payload);
-        return;
-    }
-
-    const command = new SendMessageCommand({
-        QueueUrl: SQS_QUEUE_URL,
-        MessageBody: JSON.stringify(payload),       // SQS takes a string
-    });
-
-    return sqs.send(command);
-}
 
 
 
@@ -65,14 +41,10 @@ async function pollAndProcess(){
             const { aiResultId, fileKey } = JSON.parse(msg.Body);
 
             try{
-                await processInBackGround(aiResultId, fileKey);
+                await processJob(aiResultId, fileKey);
 
-                // delete after successfull processing
-                const command = new DeleteMessageCommand({
-                    QueueUrl: SQS_QUEUE_URL,
-                    ReceiptHandle: msg.ReceiptHandle,
-                });
-                await sqs.send(command);
+                // delete from queue - after successfull processing
+                deleteFromQueue(msg.ReceiptHandle);
             } catch(err){
                 console.error("Job failed, leaving it in queue", err);
             }
@@ -82,9 +54,9 @@ async function pollAndProcess(){
 
 
 
-async function processInBackGround(aiResultId, fileKey){
+async function processJob(aiResultId, fileKey){
     const aiResult = await AIResult.findById(aiResultId);
-    const file = await File.findById(fileKey);
+    const file = await File.findOne({key: fileKey});
     try{
 
         if(!aiResult || !file){
@@ -134,7 +106,7 @@ async function processInBackGround(aiResultId, fileKey){
 
 // example: send a few jobs, then start the worker
 async function main() {
-    // pollAndProcess(); 
+    pollAndProcess(); 
 }
 
 main();

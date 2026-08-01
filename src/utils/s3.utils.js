@@ -69,15 +69,20 @@ function buildKey(mimeType, originalName){
     let folder = getFolderByMimeType(mimeType);
     return`uploads/${folder}/${filename}`
 }
+export function buildThumbnailKey(originalKey) {
+    return originalKey
+        .replace("uploads/", "thumbnails/")
+        .replace(/\.[^.]+$/, ".jpg");
+}
+
 
 // export function buildFileUrl(key) {
-//     return `https://${BUCKET}.s3.${REGION}.amazonaws.com/${key}`;
+//     return `https://${BUCKET}.s3.${REGION}.amazonaws.com/${key}`;    
 // }
-
-
 export function buildFileUrl(key) {
     return `https://${CLOUDFRONT_DOMAIN}/${key}`;
-}
+}    
+
 
 
 
@@ -101,7 +106,8 @@ export async function uploadBufferToS3(buffer, key, mimeType){
 
 
 // ─── Upload to S3 ───────────────
-export async function uploadToS3(file){
+// flag for running in lamdba or same ec2
+export async function uploadToS3(file, isLambda = true){
     try{
         const key = buildKey(file.mimetype, file.originalname);
         
@@ -112,7 +118,7 @@ export async function uploadToS3(file){
         let preview = {};
         let metadata = {};
 
-        if(file.mimetype.startsWith("image/")){
+        if(!isLambda && file.mimetype.startsWith("image/")){
             const [{data, info}, blurhash ] = await Promise.all([
                 generateThumbnail(file.buffer),
                 generateBlurhash(file.buffer)
@@ -122,7 +128,8 @@ export async function uploadToS3(file){
             
 
             // 3. If image -> upload thumbnail + get metadata
-            const thumbnailKey = key.replace(/(\.[^.]+)$/, "_thumb.jpg");
+            // const thumbnailKey = key.replace(/(\.[^.]+)$/, "_thumb.jpg");
+            const thumbnailKey = buildThumbnailKey(file.key);
             await uploadBufferToS3(data, thumbnailKey, "image/jpeg");
             
             console.log("blurhash", blurhash);
@@ -142,7 +149,7 @@ export async function uploadToS3(file){
             }
             
         }
-        else if(file.mimetype.startsWith("video/")){
+        else if(!isLambda && file.mimetype.startsWith("video/")){
             console.log("Generating thumbnail...");
             const thumbnailBuffer = await generateVideoThumbnail(file.buffer);
             console.log("result generateVideoThumbnail => ", thumbnailBuffer);
@@ -156,7 +163,8 @@ export async function uploadToS3(file){
             
 
             // 3. If image -> upload thumbnail + get metadata
-            const thumbnailKey = key.replace(/(\.[^.]+)$/, "_thumb.jpg");
+            // const thumbnailKey = key.replace(/(\.[^.]+)$/, "_thumb.jpg");
+            const thumbnailKey = buildThumbnailKey(file.key);
             await uploadBufferToS3(data, thumbnailKey, "image/jpeg");
             
             console.log("blurhash", blurhash);
@@ -304,7 +312,19 @@ export async function removeTagS3ObjectAsDeleted(key){
 
 // ───  (auto delete trash obj after 30 days) ───────────────
 export async function moveToTrash(key){
-    const trashKey = key.replace("uploads/", "trash/");
+    // const trashKey = key.replace("uploads/", "trash/");
+    console.log("key : ", key);
+    let trashKey;
+
+    if (key.startsWith("uploads/")) {
+        trashKey = key.replace("uploads/", "trash/");
+    } else if (key.startsWith("thumbnails/")) {
+        trashKey = key.replace("thumbnails/", "trash/thumbnails/");
+    } else {
+        throw new Error(`Unsupported key: ${key}`);
+    }
+
+    console.log("trashKey : ", trashKey);
 
     const command = new CopyObjectCommand({
         Bucket: BUCKET,
@@ -312,17 +332,27 @@ export async function moveToTrash(key){
         CopySource: `${BUCKET}/${key}`
     })
 
-    await s3.send(command);
-
+    const resp = await s3.send(command);
+    console.log("resp : ", resp);
     return { movedToTrash: true, trashKey };
 }
 
 export async function restoreFromTrashAndMoveToUpload(trashKey){
-    const key = trashKey.replace("trash/", "uploads/");
+    // const key = trashKey.replace("trash/", "uploads/");
+    let restoredKey;
+
+    if (key.startsWith("trash/thumbnails/")) {
+        restoredKey = trashKey.replace("trash/thumbnails/", "thumbnails/");
+    } else if (key.startsWith("trash/")) {
+        restoredKey = trashKey.replace("trash/", "uploads/");
+    } else {
+        throw new Error(`Unsupported key: ${trashKey}`);
+    }
+
 
     const command = new CopyObjectCommand({
         Bucket: BUCKET,
-        Key: key,
+        Key: restoredKey,
         CopySource: `${BUCKET}/${trashKey}`
     })
 

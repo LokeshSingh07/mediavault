@@ -1,7 +1,7 @@
 import { invalidateCloudfrontCache } from "../config/cdn.config.js";
 import { File } from "../models/file.model.js";
 import { decrementStorage, validateKey } from "../utils/helper.utils.js";
-import { deleteFromS3, getObjectSignedUrl, getObjectUrl, moveToTrash, removeTagS3ObjectAsDeleted, restoreFromTrashAndMoveToUpload, tagS3ObjectAsDeleted } from "../utils/s3.utils.js";
+import { buildFileUrl, deleteFromS3, getObjectSignedUrl, getObjectUrl, moveToTrash, removeTagS3ObjectAsDeleted, restoreFromTrashAndMoveToUpload, tagS3ObjectAsDeleted } from "../utils/s3.utils.js";
 
 
 
@@ -319,6 +319,7 @@ export const softDeleteFile = async(req, res) => {
         const userId = req.user?.id;
         const { key } = req.query;
         const isMoveToTrash = req.query.isInTrash === "true";
+        console.log("key : ", key);
 
         const file = await File.findOne({ key, uploadedBy: userId, isDeleted: false });
         if(!file) return res.status(400).json({ success: false, message: "File not found" });
@@ -328,19 +329,22 @@ export const softDeleteFile = async(req, res) => {
             await tagS3ObjectAsDeleted(key);
 
             if (file.preview?.thumbnailKey) {
-                await tagS3ObjectAsDeleted(file.preview.thumbnailKey);
+                await tagS3ObjectAsDeleted(file.preview?.thumbnailKey);
             }
 
         } else {
             // ─── Option B: move to trash ──────────────────────
+            console.log("debug 1");
             const { trashKey } = await moveToTrash(key);
+            console.log("debug 2 ");
             await deleteFromS3(key);
             file.key = trashKey;
             file.url = buildFileUrl(trashKey);
             
+            console.log("debug 3");
             if(file.preview?.thumbnailKey){
                 const { trashKey:  thumbnailTrashKey } = await moveToTrash(file.preview.thumbnailKey);
-                await deleteFromS3(file.preview.thumbnailKey);
+                await deleteFromS3(file.preview?.thumbnailKey);
                 file.preview.thumbnailKey = thumbnailTrashKey;
                 file.preview.thumbnailUrl = buildFileUrl(thumbnailTrashKey);
             }

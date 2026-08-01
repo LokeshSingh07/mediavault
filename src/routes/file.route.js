@@ -41,11 +41,11 @@ fileRouter.get("/get-deleted-files", authMiddleware, getDeletedFileList)
 fileRouter.get("/search", authMiddleware, getFile)
 
 // delete File (object key) ->> hard delete
-fileRouter.delete("/hard-delete", hardDeleteFile)
+fileRouter.delete("/hard-delete", authMiddleware, hardDeleteFile)
 
 // delete File (object key) ->> soft delete, restore 
-fileRouter.delete("/soft-delete", softDeleteFile)
-fileRouter.patch("/restore-delete", restoreDeleteFile)
+fileRouter.delete("/soft-delete", authMiddleware, softDeleteFile)
+fileRouter.patch("/restore-delete", authMiddleware, restoreDeleteFile)
 
 // bulk trash-empty, restore, hard delete
 // fileRouter.delete("/trash-empty", emptyTrash)

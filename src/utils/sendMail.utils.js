@@ -1,4 +1,4 @@
-import { transporter } from "../config/nodemailer.js";
+import { transporter } from "../config/nodemailer.config.js";
 
 
 

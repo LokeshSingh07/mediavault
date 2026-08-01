@@ -2,7 +2,7 @@ import { MAIL_SUBJECTS } from "../emails/constants.js";
 
 import { welcomeTemplate } from "../emails/templates/user/welcome.template.js";
 import { otpTemplate } from "../emails/templates/auth/otp.template.js";
-import { sendMail } from "../utils/sendMail.js";
+import { sendMail } from "../utils/sendMail.utils.js";
 
 
 

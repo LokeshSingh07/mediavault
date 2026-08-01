@@ -1,8 +1,8 @@
 import { File } from "../models/file.model.js";
 import { AIResult } from "../models/aiResult.model.js";
+import { addJobToQueue } from "../config/sqs.config.js";
 // import { downloadFromS3 } from "../utils/s3.utils.js";
 // import { processVideoWithGroq } from "../utils/groq.utils.js";
-import { addJobToQueue } from "../utils/worker/ai-job-worker.js";
 
 
 

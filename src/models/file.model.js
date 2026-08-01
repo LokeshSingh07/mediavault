@@ -13,6 +13,8 @@ const fileSchema = new mongoose.Schema({
     uploadType: { type: String, enum:["direct", "presigned", "multipart"], required: true },
     uploadedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
     
+    status: { type: String, enum: ["queued", "processing", "completed", "failed"] },
+
     isFavorite: { type: Boolean, default: false },
 
     // file sharing

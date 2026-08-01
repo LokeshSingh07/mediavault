@@ -17,7 +17,9 @@ export const uploadFile = async(req, res) => {
 
         // upload to S3
         const result = await Promise.all(req.files.map(async (file) => {
-            const { key, url, preview, metadata} = await uploadToS3(file);
+            // const { key, url, preview, metadata} = await uploadToS3(file);
+
+            const { key, url, preview, metadata} = await uploadToS3(file, true);
             const folder = getFolderByMimeType(file.mimetype);
 
             // save to DB
@@ -94,8 +96,6 @@ export const confirmUploadFileUsingPresignedUrl = async(req, res) => {
         if(!key || !originalname || !mimetype || !size || !contentType){
             return res.status(400).json({success: false, message: "Allf ields are required"});
         }
-
-
 
         const file = {
             originalname,
