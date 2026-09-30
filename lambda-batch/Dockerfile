@@ -1,14 +1,9 @@
-FROM node:20-slim
+FROM public.ecr.aws/lambda/nodejs:22
 
-WORKDIR /app
+COPY package*.json ${LAMBDA_TASK_ROOT}/
 
-# Copy package files
-COPY package*.json ./
-
-# Install production dependencies
 RUN npm ci --omit=dev
 
-# Copy Lambda application code
-COPY . .
+COPY . ${LAMBDA_TASK_ROOT}/
 
-CMD ["node", "index.js"]
+CMD ["index.handler"]

@@ -1,0 +1,14 @@
+{
+  "name": "batch",
+  "version": "1.0.0",
+  "description": "S3 Upload (image/video)",
+  "main": "worker.js",
+  "scripts": {
+    "start": "node worker.js",
+    "dev": "node worker.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module"
+}

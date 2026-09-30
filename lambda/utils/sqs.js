@@ -10,9 +10,14 @@ export async function addJobToQueue(payload){
             QueueUrl: VIDEO_QUEUE_URL,
             MessageBody: JSON.stringify(payload),       // SQS takes a string
         });
-        
-        return sqs.send(command);
+
+
+        const response = await sqs.send(command);
+        console.log("SQS message sent:", response.MessageId);
+
+        return response;
     } catch(err){
-        console.log(err);
+        console.error("SQS error:", err);
+        throw err;
     }
 }
