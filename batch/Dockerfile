@@ -19,4 +19,4 @@ RUN npm install --omit=dev
 COPY . .
 
 # Start AWS Batch worker
-CMD ["node", "worker.js"]   
+CMD ["node", "worker.js"]

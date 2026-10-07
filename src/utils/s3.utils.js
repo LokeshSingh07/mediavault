@@ -208,10 +208,13 @@ export function getObjectUrl(key){
 
 
 // ─── Get Presigned Object URL ───────────────
-export async function getObjectSignedUrl(key, expiresIn = SIGNED_URL_EXPIRES){
+export async function getObjectSignedUrl(key, expiresIn = SIGNED_URL_EXPIRES, { download = false, filename } = {}){
     const command = new GetObjectCommand({
         Bucket: BUCKET,
-        Key: key
+        Key: key,
+        ...(download && {
+            ResponseContentDisposition: `attachment; filename="${encodeURIComponent(filename || path.basename(key))}"`,
+        }),
     })
     
     const signedUrl = await getSignedUrl(s3, command, {
@@ -338,27 +341,25 @@ export async function moveToTrash(key){
 }
 
 export async function restoreFromTrashAndMoveToUpload(trashKey){
-    // const key = trashKey.replace("trash/", "uploads/");
     let restoredKey;
 
-    if (key.startsWith("trash/thumbnails/")) {
+    if (trashKey.startsWith("trash/thumbnails/")) {
         restoredKey = trashKey.replace("trash/thumbnails/", "thumbnails/");
-    } else if (key.startsWith("trash/")) {
+    } else if (trashKey.startsWith("trash/")) {
         restoredKey = trashKey.replace("trash/", "uploads/");
     } else {
         throw new Error(`Unsupported key: ${trashKey}`);
     }
 
-
     const command = new CopyObjectCommand({
         Bucket: BUCKET,
         Key: restoredKey,
         CopySource: `${BUCKET}/${trashKey}`
-    })
+    });
 
     await s3.send(command);
 
-    return { restoredKey: true, key };
+    return { restoredKey: true, key: restoredKey };
 }
 
 

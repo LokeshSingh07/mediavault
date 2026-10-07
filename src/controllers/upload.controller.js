@@ -69,7 +69,6 @@ export const uploadFile = async(req, res) => {
     }
 }
 
-
 // TODO: save to DB after upload to s3 using put + presigned-upload url
 export const uploadFileUsingPresignedUrl = async(req, res) => {
     try{
@@ -205,8 +204,6 @@ export const completeMultipartUpload = async (req, res) => {
     }
 }
 
-
-
 export const abortMultipartUpload = async (req, res) => {
     try {
         const { uploadId, key } = req.body;
@@ -222,6 +219,7 @@ export const abortMultipartUpload = async (req, res) => {
         return res.status(200).json({ success: true, message: "Multipart upload aborted" });
     }
 }
+
 
 
 

@@ -16,23 +16,10 @@ const fileSchema = new mongoose.Schema({
     status: { type: String, enum: ["queued", "processing", "completed", "failed"] },
 
     isFavorite: { type: Boolean, default: false },
-
-    // file sharing
-    isPublic: { type: Boolean, default: false },
-    sharedLink: { type: String, default: null },
-    sharedLinkExpiry: { type: Date, default: null },
-
-    // file encryption
-    // isEncrypted: { type: Boolean, default: false },
-    // encryptionKey: { type: String, default: null },
-    // encryptionIV: { type: String, default: null },
-
     
-    // sharedWith: [{
-    //     user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-    //     permission: { type: String, enum: ["view", "download", "edit"], default: "view" },
-    //     sharedAt: { type: Date, default: Date.now },
-    // }],
+    // Convenience flag only. ShareLink is the source of truth for access.
+    isPublic: { type: Boolean, default: false },
+
 
     // ─── Preview / Thumbnail ──────────────────────────────────
     preview: {
@@ -50,7 +37,14 @@ const fileSchema = new mongoose.Schema({
         duration: { type: Number, default: null }   // sec (video and audio only)
     },
 
-    // lastAccessedAt: { type: Date, default: null },
+    // TODO: HLS (video only, written by the Batch worker)
+    // hls: {
+    //     masterKey: { type: String, default: null },
+    //     masterUrl: { type: String, default: null },
+    //     renditions: { type: [String], default: [] },   // e.g. ["720p", "480p"]
+    //     generatedAt: { type: Date, default: null },
+    // },
+
 
     isDeleted: { type: Boolean, default: false },
     deletedAt: { type: Date, default: null },

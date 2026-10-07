@@ -1,8 +1,8 @@
 import { File } from "../models/file.model.js";
 import { AIResult } from "../models/aiResult.model.js";
 import { addJobToQueue } from "../config/sqs.config.js";
-// import { downloadFromS3 } from "../utils/s3.utils.js";
-// import { processVideoWithGroq } from "../utils/groq.utils.js";
+import { downloadFromS3 } from "../utils/s3.utils.js";
+import { processVideoWithGroq } from "../utils/groq.utils.js";
 
 
 
@@ -59,8 +59,8 @@ export const transcribeFile = async(req, res) => {
             fileKey: file.key
         }
 
-        // add to queue -> for prcoessing
-        await addJobToQueue(payload);
+        // TODO: add to queue -> for prcoessing
+        // await addJobToQueue(payload);
 
         // responsd immediately
         res.status(202).json({
@@ -73,7 +73,7 @@ export const transcribeFile = async(req, res) => {
         });
 
         // run in the background 
-        // processInBackGround(aiResult, file);
+        processInBackGround(aiResult, file);
 
 
     } catch(err){
@@ -82,38 +82,38 @@ export const transcribeFile = async(req, res) => {
 }
 
 
-// async function processInBackGround(aiResult, file){
-//     try{
-//         // downlaod from s3
-//         const buffer = await downloadFromS3(file.key);
+async function processInBackGround(aiResult, file){
+    try{
+        // downlaod from s3
+        const buffer = await downloadFromS3(file.key);
 
-//         aiResult.status = "processing";
-//         await aiResult.save();
+        aiResult.status = "processing";
+        await aiResult.save();
 
-//         const result = await processVideoWithGroq(buffer, file.folder);
+        const result = await processVideoWithGroq(buffer, file.folder);
 
         
-//         // save results
-//         aiResult.status = "completed";
-//         aiResult.transcript = result.transcript;
-//         aiResult.language = result.language;
-//         aiResult.duration = result.duration;
-//         aiResult.summary = result.summary;
-//         aiResult.keyPoints = result.keyPoints;
-//         aiResult.questions = result.questions;
-//         aiResult.processedAt = new Date();
-//         await aiResult.save();
+        // save results
+        aiResult.status = "completed";
+        aiResult.transcript = result.transcript;
+        aiResult.language = result.language;
+        aiResult.duration = result.duration;
+        aiResult.summary = result.summary;
+        aiResult.keyPoints = result.keyPoints;
+        aiResult.questions = result.questions;
+        aiResult.processedAt = new Date();
+        await aiResult.save();
 
-//         console.log(`✅ Processing completed for file: ${file.originalname}`);
-//     }
-//     catch(err){
-//         aiResult.status = "failed";
-//         aiResult.error = err.message;
-//         await aiResult.save();
+        console.log(`✅ Processing completed for file: ${file.originalname}`);
+    }
+    catch(err){
+        aiResult.status = "failed";
+        aiResult.error = err.message;
+        await aiResult.save();
 
-//         console.log(`❌ Processing failed for file: ${file.originalname}`, err.message);
-//     }
-// }
+        console.log(`❌ Processing failed for file: ${file.originalname}`, err.message);
+    }
+}
 
 
 

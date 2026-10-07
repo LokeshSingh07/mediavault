@@ -5,15 +5,15 @@ const fileRouter = Router();
 
 // import controllers
 import { 
+    accessShareLink,
+    emptyTrash,
     generateShareableLink,
     getDeletedFileList,
     getFavouriteFileList,
     getFile,
     getFileList,
-    // getFilePresignedUrl, 
-    // getFileUrl, 
-    // getShareableLink, 
     hardDeleteFile,
+    restoreAllTrash,
     restoreDeleteFile,
     revokeSharedLink,
     softDeleteFile,
@@ -22,10 +22,6 @@ import {
 } from "../controllers/file.controller.js";
 import { fileLimiter } from "../middlewares/rateLimiter.middleware.js";
 import { authMiddleware } from "../middlewares/auth.middleware.js";
-
-
-
-
 
 // ======================== API ROUTES ======================== 
 
@@ -47,8 +43,9 @@ fileRouter.delete("/hard-delete", authMiddleware, hardDeleteFile)
 fileRouter.delete("/soft-delete", authMiddleware, softDeleteFile)
 fileRouter.patch("/restore-delete", authMiddleware, restoreDeleteFile)
 
-// bulk trash-empty, restore, hard delete
-// fileRouter.delete("/trash-empty", emptyTrash)
+// bulk trash operations
+fileRouter.delete("/empty-trash", authMiddleware, emptyTrash);
+fileRouter.patch("/restore-all-trash", authMiddleware, restoreAllTrash);
 
 //  Cron job — expired trash cleanup
 
@@ -69,6 +66,7 @@ fileRouter.patch("/toggle-favourite", authMiddleware, toggleFavouriteFile)
 // ======================== SHARE LINKS ROUTES ========================
 // fileRouter.geet("/share", fileLimiter, authMiddleware, getShareableLink);
 fileRouter.post("/share", fileLimiter, authMiddleware, generateShareableLink);
+fileRouter.get("/s/:token", fileLimiter, accessShareLink);
 fileRouter.patch("/revoke-share", fileLimiter, authMiddleware, revokeSharedLink);
 fileRouter.patch("/toggle-visibility", fileLimiter, authMiddleware, toggleFileVisibility);
 
