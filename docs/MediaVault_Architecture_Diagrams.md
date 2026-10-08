@@ -1,4 +1,4 @@
-# ☁️ CloudVault — Cloud-Native Architecture Diagrams
+# ☁️ MediaVault — Cloud-Native Architecture Diagrams
 
 > Designed & Created by **Lokesh**  
 > GitHub: [lokeshsingh07](https://github.com/lokeshsingh07) · LinkedIn: [lokeshsingh07](https://linkedin.com/in/lokeshsingh07) · Contact: [codewithlokesh.com/contact](https://codewithlokesh.com/contact)
@@ -7,7 +7,7 @@
 
 ## 🏛️ Diagram 1: High-Level End-to-End System Architecture
 
-This diagram illustrates the complete 4-tier architecture of **CloudVault**, highlighting the separation between the React 19 client, Node.js control plane, AWS serverless media pipeline, and Groq AI intelligence tier.
+This diagram illustrates the complete 4-tier architecture of **MediaVault**, highlighting the separation between the React 19 client, Node.js control plane, AWS serverless media pipeline, and Groq AI intelligence tier.
 
 ```mermaid
 flowchart TD
@@ -125,7 +125,7 @@ flowchart LR
 ---
 
 ### 💡 LinkedIn Caption Idea for Lokesh:
-> 🚀 Excited to share the architecture of **CloudVault** — cloud media vault & AI transcription platform!
+> 🚀 Excited to share the architecture of **MediaVault** — an enterprise-grade cloud media vault & AI transcription platform!
 > 
 > ⚡ **Tech Stack**:
 > - **Frontend**: React 19, Vite, Tailwind CSS, TanStack Query/Router
